@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ScanCut — Video &amp; Audio QC Scanner for Filmmakers</title>
+<title>PostFlow — Video &amp; Audio QC Scanner for Filmmakers</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -197,6 +197,33 @@ h2{font-size:clamp(30px,3.8vw,44px);font-weight:800;letter-spacing:-.025em;line-
 .chip:nth-child(3n+2) .cd{background:var(--teal);box-shadow:0 0 8px var(--teal)}
 .chip:nth-child(3n+3) .cd{background:var(--amber);box-shadow:0 0 8px var(--amber)}
 
+/* ===== WORKFLOW STEPS ===== */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;position:relative}
+.step{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border);
+  border-radius:16px;padding:32px 28px;position:relative;transition:.3s}
+.step:hover{transform:translateY(-6px);border-color:var(--border-2)}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--teal);
+  letter-spacing:.1em;margin-bottom:18px;opacity:.8}
+.step-ico{width:54px;height:54px;border-radius:13px;display:grid;place-items:center;margin-bottom:20px;
+  background:rgba(46,123,255,.1);border:1px solid var(--border-2);color:var(--teal);box-shadow:var(--glow-teal)}
+.step h3{font-size:20px;font-weight:700;margin-bottom:10px;letter-spacing:-.01em}
+.step p{color:var(--muted);font-size:15.5px}
+
+/* ===== FUNCTIONS GRID ===== */
+.fn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.fn{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border);
+  border-radius:15px;padding:26px 22px;transition:.3s;position:relative;overflow:hidden}
+.fn::before{content:"";position:absolute;inset:0;border-radius:15px;padding:1px;opacity:0;transition:.3s;
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+.fn:hover{transform:translateY(-5px)}
+.fn:hover::before{opacity:.5}
+.fn-ico{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;margin-bottom:16px;
+  background:rgba(34,224,208,.08);border:1px solid var(--border-2);color:var(--teal)}
+.fn h3{font-size:16.5px;font-weight:700;margin-bottom:8px;letter-spacing:-.01em}
+.fn p{color:var(--muted);font-size:14px}
+
 /* ===== PRICING ===== */
 .price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:840px;margin:0 auto}
 .price{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border);
@@ -243,12 +270,15 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
   .hero-grid{grid-template-columns:1fr;gap:44px}
   .feat-wrap{grid-template-columns:1fr;gap:40px}
   .cards{grid-template-columns:repeat(2,1fr)}
+  .fn-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:1fr}
   .nav-links{display:none}
   .float-badge{display:none}
 }
 @media(max-width:600px){
   .section{padding:80px 0}
   .cards{grid-template-columns:1fr}
+  .fn-grid{grid-template-columns:1fr}
   .price-grid{grid-template-columns:1fr}
   .nav-cta .btn-ghost{display:none}
   .trust-card{padding:48px 26px}
@@ -267,9 +297,9 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
     <div class="logo"><span class="logo-mark"></span><span>PostFlow</span></div>
     <nav class="nav-links">
       <a href="#features">Detection</a>
-      <a href="#how">How it works</a>
+      <a href="#functions">Functions</a>
+      <a href="#workflow">How it works</a>
       <a href="#pricing">Pricing</a>
-      <a href="#trust">Studios</a>
     </nav>
     <div class="nav-cta">
       <a href="#pricing" class="btn btn-ghost">Sign in</a>
@@ -336,7 +366,7 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
 <section class="section" id="how">
   <div class="container">
     <div class="sec-head reveal">
-      <span class="eyebrow">Why ScanCut</span>
+      <span class="eyebrow">Why PostFlow</span>
       <h2>Delivery-grade QC, right on your machine</h2>
       <p>Everything you need to ship clean exports — without sending a single frame to the cloud.</p>
     </div>
@@ -405,6 +435,90 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
         <div class="chip"><span class="cd"></span>Corrupt frames</div>
         <div class="chip"><span class="cd"></span>Bitrate inconsistencies</div>
         <div class="chip"><span class="cd"></span>Export integrity checks</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section class="section" id="workflow" style="background:linear-gradient(180deg,transparent,rgba(10,14,24,.5),transparent)">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2>From export to sign-off in three steps</h2>
+      <p>Point PostFlow at a file or a whole folder — it does the rest, entirely on your machine.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">01</div>
+        <div class="step-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M12 3v13"/><path d="M7 8l5-5 5 5"/></svg></div>
+        <h3>Drop your export</h3>
+        <p>Drag in a single file or queue an entire delivery folder. Supports ProRes, DNxHD, H.264/265, IMF, MXF, WAV and more — no transcode, no upload.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">02</div>
+        <div class="step-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg></div>
+        <h3>Pick a spec &amp; scan</h3>
+        <p>Choose a delivery preset — Netflix, IMF, AS-11, EBU R128 — or build your own tolerances. The engine analyzes every frame and audio sample locally.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">03</div>
+        <div class="step-ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg></div>
+        <h3>Review &amp; export report</h3>
+        <p>Jump to any flagged timecode, confirm or dismiss issues, then export a timestamped PDF to hand to your client, editor, or delivery QC team.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FUNCTIONS / CAPABILITIES -->
+<section class="section" id="functions">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Scan functions</span>
+      <h2>More than a checker — a full QC workspace</h2>
+      <p>Every tool a post team needs to find, verify, and clear technical issues fast.</p>
+    </div>
+    <div class="fn-grid">
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 4-6"/></svg></div>
+        <h3>Frame-accurate scrubbing</h3>
+        <p>Click any issue to jump straight to the exact frame with a built-in player and timecode readout — no round-trip to your NLE.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <h3>Batch &amp; folder scanning</h3>
+        <p>Queue dozens of exports or a whole delivery folder overnight and get a consolidated pass/fail dashboard in the morning.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg></div>
+        <h3>Delivery spec presets</h3>
+        <p>One-click profiles for Netflix, Amazon, IMF, AS-11 DPP, and EBU R128 — or save custom tolerances per client.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h3l3 8 4-16 3 8h5"/></svg></div>
+        <h3>Loudness &amp; waveform metering</h3>
+        <p>Integrated LUFS, true-peak, and dialnorm meters with a scrollable waveform so you can see exactly where audio drifts out of spec.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 3v9l6 3"/></svg></div>
+        <h3>Scopes &amp; gamut check</h3>
+        <p>Waveform, vectorscope and histogram views flag illegal levels and color-gamut violations before they reach broadcast QC.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg></div>
+        <h3>Exportable PDF &amp; CSV reports</h3>
+        <p>Generate a branded, timestamped report — or export raw CSV/EDL markers to drop flagged points straight into your timeline.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 6.5 19l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.6 1.6 0 0 0 3 12.6H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.6 6.5l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1A1.6 1.6 0 0 0 10 3.6V3a2 2 0 1 1 4 0v.1A1.6 1.6 0 0 0 17.5 5l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></div>
+        <h3>Custom rules &amp; thresholds</h3>
+        <p>Dial black-frame duration, freeze sensitivity, silence gaps and peak limits to match exactly what each distributor rejects.</p>
+      </div>
+      <div class="fn reveal">
+        <div class="fn-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <h3>Side-by-side re-scan</h3>
+        <p>Re-run after a fix and diff against the previous scan to confirm the issue is cleared before you re-deliver.</p>
       </div>
     </div>
   </div>
