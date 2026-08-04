@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScanCut — Video &amp; Audio QC Scanner for Filmmakers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070d;
+  --bg-2:#0a0e18;
+  --panel:#0d1220;
+  --panel-2:#111827;
+  --border:rgba(120,160,255,.10);
+  --border-2:rgba(120,200,255,.18);
+  --text:#e8eefc;
+  --muted:#8a97b3;
+  --muted-2:#5f6c88;
+  --blue:#2e7bff;
+  --blue-bright:#4d9bff;
+  --teal:#22e0d0;
+  --teal-dim:#17b6ad;
+  --red:#ff5b6e;
+  --amber:#ffb84d;
+  --green:#38e08a;
+  --glow-blue:0 0 40px rgba(46,123,255,.35);
+  --glow-teal:0 0 40px rgba(34,224,208,.28);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:18px}
+@media(max-width:600px){html{font-size:16px}}
+body{
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  font-size:1.05rem;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono',monospace}
+a{color:inherit;text-decoration:none}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+.section{padding:110px 0;position:relative}
+
+/* ===== BACKGROUND FX ===== */
+.bg-fx{position:fixed;inset:0;z-index:-2;pointer-events:none}
+.bg-fx::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(900px 600px at 15% -5%,rgba(46,123,255,.18),transparent 60%),
+    radial-gradient(800px 500px at 90% 0%,rgba(34,224,208,.12),transparent 55%),
+    radial-gradient(1000px 800px at 50% 110%,rgba(46,123,255,.10),transparent 60%);
+}
+.grid-lines{position:fixed;inset:0;z-index:-2;pointer-events:none;opacity:.4;
+  background-image:linear-gradient(rgba(120,160,255,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(120,160,255,.035) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,#000 30%,transparent 75%);
+}
+.noise{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* ===== NAV ===== */
+header{position:fixed;top:0;left:0;right:0;z-index:100;transition:.3s}
+header.scrolled{background:rgba(5,7,13,.8);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:72px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.02em}
+.logo-mark{width:30px;height:30px;border-radius:8px;position:relative;
+  background:linear-gradient(135deg,var(--blue),var(--teal));
+  box-shadow:var(--glow-blue);display:grid;place-items:center}
+.logo-mark::after{content:"";width:11px;height:11px;border:2px solid #05070d;border-radius:3px}
+.logo span{background:linear-gradient(90deg,#fff,#a9c4ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:var(--muted);font-size:15px;font-weight:500;transition:.2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{display:flex;gap:12px;align-items:center}
+
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;
+  padding:11px 22px;border-radius:10px;cursor:pointer;border:1px solid transparent;
+  transition:.2s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-bright));color:#fff;
+  box-shadow:0 8px 24px rgba(46,123,255,.35),inset 0 1px 0 rgba(255,255,255,.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(46,123,255,.5),inset 0 1px 0 rgba(255,255,255,.25)}
+.btn-ghost{background:rgba(120,160,255,.06);color:var(--text);border-color:var(--border-2)}
+.btn-ghost:hover{background:rgba(120,160,255,.12);border-color:rgba(120,200,255,.35)}
+.btn-lg{padding:16px 32px;font-size:16.5px;border-radius:12px}
+
+/* ===== HERO ===== */
+.hero{padding:150px 0 90px;position:relative}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;
+  padding:7px 14px;border-radius:100px;border:1px solid var(--border-2);
+  background:rgba(34,224,208,.06);color:var(--teal);margin-bottom:26px;letter-spacing:.02em}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px var(--teal);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+h1.headline{font-size:clamp(38px,5.2vw,62px);font-weight:900;line-height:1.03;letter-spacing:-.03em;margin-bottom:22px}
+h1.headline .accent{background:linear-gradient(120deg,var(--teal),var(--blue-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.subhead{font-size:20px;color:var(--muted);max-width:580px;margin-bottom:34px}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px}
+.hero-trust{display:flex;gap:22px;flex-wrap:wrap;color:var(--muted-2);font-size:14.5px;font-weight:500}
+.hero-trust span{display:flex;align-items:center;gap:7px}
+.check{color:var(--teal)}
+
+/* ===== DASHBOARD MOCKUP ===== */
+.dash{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border-2);
+  border-radius:16px;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.6),var(--glow-blue);position:relative;overflow:hidden}
+.dash::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:.6}
+.dash-top{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.dots{display:flex;gap:6px}
+.dots i{width:11px;height:11px;border-radius:50%;background:#22293a;display:block}
+.dots i:nth-child(1){background:#ff5f57}.dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+.dash-title{margin-left:8px;font-size:12.5px;color:var(--muted);font-weight:600}
+.dash-file{margin-left:auto;font-size:11px;color:var(--muted-2)}
+.scan-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding:14px;
+  background:var(--panel-2);border:1px solid var(--border);border-radius:11px}
+.scan-thumb{width:74px;height:44px;border-radius:6px;flex:none;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#12203a,#0b1424);border:1px solid var(--border)}
+.scan-thumb .playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--teal);box-shadow:0 0 8px var(--teal);
+  left:0;animation:scanmove 3.5s linear infinite}
+@keyframes scanmove{from{left:2%}to{left:96%}}
+.scan-meta{flex:1;min-width:0}
+.scan-meta .name{font-size:13px;font-weight:600;margin-bottom:8px}
+.bar{height:7px;border-radius:6px;background:#1a2438;overflow:hidden;position:relative}
+.bar i{position:absolute;inset:0;width:72%;border-radius:6px;
+  background:linear-gradient(90deg,var(--blue),var(--teal));box-shadow:0 0 12px rgba(34,224,208,.5);
+  animation:load 3.5s ease-in-out infinite}
+@keyframes load{0%{width:8%}60%{width:78%}100%{width:78%}}
+.scan-pct{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--teal)}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--panel-2);border:1px solid var(--border);border-radius:10px;padding:11px 12px;text-align:center}
+.stat b{display:block;font-size:20px;font-family:'JetBrains Mono',monospace;font-weight:700}
+.stat small{font-size:10.5px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.05em}
+.stat.crit b{color:var(--red)}.stat.warn b{color:var(--amber)}.stat.ok b{color:var(--green)}
+
+.issues{background:var(--panel-2);border:1px solid var(--border);border-radius:11px;overflow:hidden}
+.issue{display:flex;align-items:center;gap:11px;padding:11px 14px;border-bottom:1px solid var(--border);font-size:12.5px}
+.issue:last-child{border-bottom:none}
+.sev{width:8px;height:8px;border-radius:50%;flex:none}
+.sev.c{background:var(--red);box-shadow:0 0 8px var(--red)}
+.sev.w{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.sev.i{background:var(--blue-bright);box-shadow:0 0 8px var(--blue-bright)}
+.issue .tc{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:11.5px;flex:none;width:74px}
+.issue .desc{flex:1;color:var(--text)}
+.issue .tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.04em}
+.tag.c{background:rgba(255,91,110,.14);color:var(--red)}
+.tag.w{background:rgba(255,184,77,.14);color:var(--amber)}
+.tag.i{background:rgba(77,155,255,.14);color:var(--blue-bright)}
+.float-badge{position:absolute;right:-14px;top:32%;background:var(--panel);border:1px solid var(--border-2);
+  border-radius:12px;padding:12px 16px;box-shadow:var(--glow-teal);animation:floaty 4s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.float-badge .fb-t{font-size:11px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.05em}
+.float-badge .fb-v{font-size:16px;font-weight:800;color:var(--teal)}
+
+/* ===== SECTION HEADS ===== */
+.eyebrow{color:var(--teal);font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;display:block}
+h2{font-size:clamp(30px,3.8vw,44px);font-weight:800;letter-spacing:-.025em;line-height:1.1}
+.sec-head{max-width:640px;margin:0 auto 60px;text-align:center}
+.sec-head p{color:var(--muted);font-size:19px;margin-top:16px}
+
+/* ===== SELLING POINTS ===== */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.card{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border);
+  border-radius:16px;padding:28px 24px;transition:.3s;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;border-radius:16px;padding:1px;opacity:0;transition:.3s;
+  background:linear-gradient(135deg,var(--teal),var(--blue));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
+.card:hover{transform:translateY(-6px)}
+.card:hover::before{opacity:.6}
+.card-ico{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;margin-bottom:18px;
+  background:rgba(46,123,255,.1);border:1px solid var(--border-2);color:var(--teal)}
+.card h3{font-size:19px;font-weight:700;margin-bottom:9px;letter-spacing:-.01em}
+.card p{color:var(--muted);font-size:15.5px}
+
+/* ===== FEATURES / DETECTION ===== */
+.feat-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+.feat-left h2{margin-bottom:18px}
+.feat-left p{color:var(--muted);font-size:19px;margin-bottom:28px}
+.feat-cats{display:flex;flex-direction:column;gap:14px}
+.feat-cat{display:flex;gap:14px;align-items:flex-start}
+.feat-cat .fi{width:38px;height:38px;border-radius:10px;flex:none;display:grid;place-items:center;
+  background:rgba(34,224,208,.08);border:1px solid var(--border-2);color:var(--teal)}
+.feat-cat b{font-size:16px;display:block;margin-bottom:2px}
+.feat-cat span{color:var(--muted);font-size:14.5px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:500;
+  padding:12px 16px;border-radius:11px;background:var(--panel);border:1px solid var(--border);
+  transition:.25s;cursor:default}
+.chip:hover{border-color:var(--border-2);background:var(--panel-2);transform:translateY(-2px)}
+.chip .cd{width:7px;height:7px;border-radius:50%;flex:none}
+.chip:nth-child(3n+1) .cd{background:var(--red);box-shadow:0 0 8px var(--red)}
+.chip:nth-child(3n+2) .cd{background:var(--teal);box-shadow:0 0 8px var(--teal)}
+.chip:nth-child(3n+3) .cd{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+
+/* ===== PRICING ===== */
+.price-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:840px;margin:0 auto}
+.price{background:linear-gradient(180deg,var(--panel),var(--bg-2));border:1px solid var(--border);
+  border-radius:18px;padding:34px 32px;position:relative}
+.price.pro{border-color:var(--border-2);box-shadow:0 20px 60px rgba(0,0,0,.5),var(--glow-blue)}
+.price.pro::before{content:"MOST POPULAR";position:absolute;top:18px;right:18px;font-size:10px;font-weight:800;
+  letter-spacing:.1em;padding:5px 11px;border-radius:100px;color:#05070d;
+  background:linear-gradient(135deg,var(--teal),var(--blue-bright))}
+.price .plan{font-size:15px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.price .amt{font-size:44px;font-weight:900;letter-spacing:-.03em;margin:10px 0 4px}
+.price .amt small{font-size:16px;font-weight:600;color:var(--muted);letter-spacing:0}
+.price .amt.free{background:linear-gradient(120deg,#fff,#a9c4ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.price ul{list-style:none;margin:24px 0 28px;display:flex;flex-direction:column;gap:13px}
+.price li{display:flex;gap:11px;align-items:flex-start;font-size:15.5px;color:var(--muted)}
+.price li .lc{color:var(--teal);flex:none;margin-top:3px}
+.price.pro li{color:var(--text)}
+.price .btn{width:100%;justify-content:center}
+
+/* ===== TRUST / CTA ===== */
+.trust{text-align:center;position:relative}
+.trust-card{max-width:900px;margin:0 auto;padding:70px 48px;border-radius:24px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,rgba(46,123,255,.10),rgba(34,224,208,.06));border:1px solid var(--border-2)}
+.trust-card::before{content:"";position:absolute;top:-50%;left:50%;transform:translateX(-50%);width:600px;height:600px;
+  background:radial-gradient(circle,rgba(34,224,208,.14),transparent 65%);pointer-events:none}
+.trust h2{margin-bottom:20px;position:relative}
+.trust p{color:var(--muted);font-size:20px;max-width:640px;margin:0 auto 32px;position:relative}
+.logos{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 26px;margin-top:44px;position:relative}
+.logos span{color:var(--muted-2);font-weight:700;font-size:15px;letter-spacing:.02em;opacity:.75;transition:.25s}
+.logos span:hover{opacity:1;color:var(--text)}
+
+/* ===== FOOTER ===== */
+footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);font-size:13.5px}
+.foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:18px}
+.foot-links{display:flex;gap:26px}
+.foot-links a{color:var(--muted-2);transition:.2s}
+.foot-links a:hover{color:var(--text)}
+
+/* ===== REVEAL ANIM ===== */
+.reveal{opacity:0;transform:translateY(28px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;gap:44px}
+  .feat-wrap{grid-template-columns:1fr;gap:40px}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .nav-links{display:none}
+  .float-badge{display:none}
+}
+@media(max-width:600px){
+  .section{padding:80px 0}
+  .cards{grid-template-columns:1fr}
+  .price-grid{grid-template-columns:1fr}
+  .nav-cta .btn-ghost{display:none}
+  .trust-card{padding:48px 26px}
+  .hero{padding:120px 0 60px}
+}
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="grid-lines"></div>
+<div class="noise"></div>
+
+<!-- NAV -->
+<header id="hdr">
+  <div class="container nav">
+    <div class="logo"><span class="logo-mark"></span><span>PostFlow</span></div>
+    <nav class="nav-links">
+      <a href="#features">Detection</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#trust">Studios</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#pricing" class="btn btn-ghost">Sign in</a>
+      <a href="#pricing" class="btn btn-primary">Start Free</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="reveal">
+      <span class="pill"><span class="dot"></span>Local-first QC engine · v2.4</span>
+      <h1 class="headline">Catch QC Issues <span class="accent">Before They Cost You.</span></h1>
+      <p class="subhead">Instantly scan your exported video files for technical video and audio errors before submitting to streaming platforms, broadcasters, or film festivals. No uploads. Unlimited scans. Fast, secure, and private.</p>
+      <div class="hero-ctas">
+        <a href="#pricing" class="btn btn-primary btn-lg">Start Free →</a>
+        <a href="#pricing" class="btn btn-ghost btn-lg">Upgrade to Pro</a>
+      </div>
+      <div class="hero-trust">
+        <span><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>No uploads required</span>
+        <span><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Unlimited scans</span>
+        <span><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>100% private &amp; local</span>
+      </div>
+    </div>
+
+    <!-- DASHBOARD MOCKUP -->
+    <div class="reveal" style="position:relative">
+      <div class="dash">
+        <div class="dash-top">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="dash-title">QC Scan · Report</span>
+          <span class="dash-file mono">FEATURE_FINAL_v12_ProRes.mov</span>
+        </div>
+        <div class="scan-row">
+          <div class="scan-thumb"><span class="playhead"></span></div>
+          <div class="scan-meta">
+            <div class="name">Analyzing frame &amp; audio integrity…</div>
+            <div class="bar"><i></i></div>
+          </div>
+          <div class="scan-pct" id="pct">72%</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat crit"><b>3</b><small>Critical</small></div>
+          <div class="stat warn"><b>7</b><small>Warnings</small></div>
+          <div class="stat ok"><b>214</b><small>Passed</small></div>
+        </div>
+        <div class="issues">
+          <div class="issue"><span class="sev c"></span><span class="tc">00:04:12:08</span><span class="desc">Black frames detected (6 frames)</span><span class="tag c">Critical</span></div>
+          <div class="issue"><span class="sev c"></span><span class="tc">00:11:47:21</span><span class="desc">Audio clipping · L channel +2.1 dB</span><span class="tag c">Critical</span></div>
+          <div class="issue"><span class="sev w"></span><span class="tc">00:23:05:14</span><span class="desc">Loudness above −24 LKFS spec</span><span class="tag w">Warning</span></div>
+          <div class="issue"><span class="sev i"></span><span class="tc">00:31:52:03</span><span class="desc">Duplicate frame sequence</span><span class="tag i">Info</span></div>
+        </div>
+      </div>
+      <div class="float-badge">
+        <div class="fb-t">Scan speed</div>
+        <div class="fb-v mono">18× realtime</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SELLING POINTS -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Why ScanCut</span>
+      <h2>Delivery-grade QC, right on your machine</h2>
+      <p>Everything you need to ship clean exports — without sending a single frame to the cloud.</p>
+    </div>
+    <div class="cards">
+      <div class="card reveal">
+        <div class="card-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>No Uploads Required</h3>
+        <p>Your files never leave your computer, keeping your content secure and confidential.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9"/><path d="M21 3v6h-6"/></svg></div>
+        <h3>Unlimited Scans</h3>
+        <p>Scan as many exports as you want with no restrictions, quotas, or per-minute fees.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg></div>
+        <h3>Instant QC Reports</h3>
+        <p>Receive a detailed report with timestamps, issue descriptions, and severity levels.</p>
+      </div>
+      <div class="card reveal">
+        <div class="card-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11a7 7 0 0 1-7 7 7 7 0 0 1-7-7"/><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M12 18v4"/></svg></div>
+        <h3>Built for Filmmakers</h3>
+        <p>Catch problems before they're rejected by distributors, broadcasters, or festivals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DETECTION FEATURES -->
+<section class="section" id="features" style="background:linear-gradient(180deg,transparent,rgba(10,14,24,.6),transparent)">
+  <div class="container feat-wrap">
+    <div class="feat-left reveal">
+      <span class="eyebrow">Detection engine</span>
+      <h2>Every technical error, flagged and timestamped</h2>
+      <p>The scanner analyzes your exports frame-by-frame and sample-by-sample for the issues that get deliveries bounced.</p>
+      <div class="feat-cats">
+        <div class="feat-cat">
+          <div class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 9h20"/></svg></div>
+          <div><b>Video integrity</b><span>Black, frozen, flash, dropped, duplicate &amp; corrupt frames plus dead pixels.</span></div>
+        </div>
+        <div class="feat-cat">
+          <div class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h3l3 8 4-16 3 8h5"/></svg></div>
+          <div><b>Audio &amp; loudness</b><span>Clipping, silence, out-of-sync audio, loudness compliance &amp; channel issues.</span></div>
+        </div>
+        <div class="feat-cat">
+          <div class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg></div>
+          <div><b>Broadcast &amp; export specs</b><span>Color gamut, illegal levels, bitrate consistency &amp; full export integrity.</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="feat-right reveal">
+      <div class="chips">
+        <div class="chip"><span class="cd"></span>Black frames</div>
+        <div class="chip"><span class="cd"></span>Frozen frames</div>
+        <div class="chip"><span class="cd"></span>Flash frames</div>
+        <div class="chip"><span class="cd"></span>Dropped frames</div>
+        <div class="chip"><span class="cd"></span>Dead pixels</div>
+        <div class="chip"><span class="cd"></span>Audio clipping</div>
+        <div class="chip"><span class="cd"></span>Silence / missing audio</div>
+        <div class="chip"><span class="cd"></span>Out-of-sync audio</div>
+        <div class="chip"><span class="cd"></span>Loudness compliance</div>
+        <div class="chip"><span class="cd"></span>Stereo &amp; surround channels</div>
+        <div class="chip"><span class="cd"></span>Color gamut violations</div>
+        <div class="chip"><span class="cd"></span>Illegal broadcast levels</div>
+        <div class="chip"><span class="cd"></span>Duplicate frames</div>
+        <div class="chip"><span class="cd"></span>Corrupt frames</div>
+        <div class="chip"><span class="cd"></span>Bitrate inconsistencies</div>
+        <div class="chip"><span class="cd"></span>Export integrity checks</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2>Start free. Upgrade when you ship.</h2>
+      <p>No credit card to begin. Cancel anytime.</p>
+    </div>
+    <div class="price-grid">
+      <div class="price reveal">
+        <div class="plan">Free</div>
+        <div class="amt free">$0<small> /forever</small></div>
+        <ul>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Basic QC scan</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Essential error detection</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Summary report</li>
+        </ul>
+        <a href="#" class="btn btn-ghost">Start Free</a>
+      </div>
+      <div class="price pro reveal">
+        <div class="plan">Pro</div>
+        <div class="amt">$19<small> /month</small></div>
+        <ul>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Unlimited scans</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Advanced video &amp; audio analysis</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Full timestamped QC reports</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Priority processing</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Exportable PDF reports</li>
+          <li><svg class="lc" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>Future feature updates</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Upgrade to Pro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section class="section trust" id="trust">
+  <div class="container">
+    <div class="trust-card reveal">
+      <span class="eyebrow">Deliver with confidence</span>
+      <h2>Stop Guessing. Deliver with Confidence.</h2>
+      <p>Whether you're submitting to Netflix, Amazon Prime Video, broadcasters, clients, or film festivals, the QC Scanner helps identify technical issues before they become costly rejections.</p>
+      <a href="#pricing" class="btn btn-primary btn-lg">Start scanning free →</a>
+      <div class="logos">
+        <span>NETFLIX</span><span>PRIME VIDEO</span><span>DISNEY+</span><span>HBO</span><span>CANNES</span><span>SUNDANCE</span><span>BBC</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container foot">
+    <div class="logo"><span class="logo-mark"></span><span>PostFlow</span></div>
+    <div class="foot-links">
+      <a href="#features">Detection</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#">Privacy</a>
+      <a href="#">Support</a>
+    </div>
+    <div>© 2026 PostFlow QC. Local-first &amp; private.</div>
+  </div>
+</footer>
+
+<script>
+// nav shadow
+const hdr=document.getElementById('hdr');
+addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>20));
+
+// reveal on scroll
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.14});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4*70)+'ms';io.observe(el)});
+
+// animated scan percentage loop
+const pct=document.getElementById('pct');
+let p=8,dir=1;
+setInterval(()=>{p+=dir*(Math.random()*4+1);if(p>=99){p=99;dir=-1}if(p<=8){p=8;dir=1}pct.textContent=Math.round(p)+'%';},180);
+</script>
+</body>
+</html>
