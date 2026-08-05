@@ -78,6 +78,25 @@ header.scrolled{background:rgba(5,7,13,.8);backdrop-filter:blur(14px);border-bot
 .nav-links a:hover{color:var(--text)}
 .nav-cta{display:flex;gap:12px;align-items:center}
 
+/* hamburger + mobile menu (hidden on desktop) */
+.nav-toggle{display:none;flex-direction:column;justify-content:center;gap:5px;
+  width:42px;height:42px;border-radius:10px;border:1px solid var(--border-2);
+  background:rgba(120,160,255,.06);cursor:pointer;padding:0}
+.nav-toggle span{display:block;width:20px;height:2px;margin:0 auto;border-radius:2px;
+  background:var(--text);transition:.25s}
+.nav-toggle.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle.open span:nth-child(2){opacity:0}
+.nav-toggle.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-menu{display:none;flex-direction:column;gap:4px;
+  padding:12px 24px 22px;border-top:1px solid var(--border);
+  background:rgba(5,7,13,.96);backdrop-filter:blur(14px)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{color:var(--muted);font-size:16px;font-weight:500;padding:13px 4px;
+  border-bottom:1px solid var(--border)}
+.mobile-menu a:last-child{border-bottom:none}
+.mobile-menu a:hover{color:var(--text)}
+.mobile-menu .btn{margin-top:12px;justify-content:center;width:100%}
+
 .btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;
   padding:11px 22px;border-radius:10px;cursor:pointer;border:1px solid transparent;
   transition:.2s;white-space:nowrap}
@@ -273,16 +292,41 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
   .fn-grid{grid-template-columns:repeat(2,1fr)}
   .steps{grid-template-columns:1fr}
   .nav-links{display:none}
+  .nav-toggle{display:flex}
   .float-badge{display:none}
 }
 @media(max-width:600px){
-  .section{padding:80px 0}
+  .container{padding:0 18px}
+  .section{padding:72px 0}
   .cards{grid-template-columns:1fr}
   .fn-grid{grid-template-columns:1fr}
   .price-grid{grid-template-columns:1fr}
-  .nav-cta .btn-ghost{display:none}
-  .trust-card{padding:48px 26px}
-  .hero{padding:120px 0 60px}
+  .nav-cta{display:none}
+  .nav{height:64px}
+  .trust-card{padding:44px 22px}
+  .hero{padding:104px 0 56px}
+  .subhead{font-size:17px}
+  .sec-head p{font-size:17px}
+  .feat-left p{font-size:17px}
+  .trust p{font-size:17.5px}
+  /* let the dashboard mockup and its rows flex instead of overflowing */
+  .dash{padding:14px}
+  .dash-top{flex-wrap:wrap}
+  .dash-file{margin-left:0;flex-basis:100%}
+  .scan-row{flex-wrap:wrap;gap:10px}
+  .scan-meta{flex-basis:100%;order:3}
+  .scan-pct{margin-left:auto}
+  .stat-row{gap:8px}
+  .stat b{font-size:18px}
+  .issue{flex-wrap:wrap;gap:7px 10px}
+  .issue .tc{width:auto}
+  .issue .desc{flex-basis:100%;order:3}
+  .hero-ctas .btn{flex:1 1 auto;justify-content:center}
+  .price .amt{font-size:38px}
+}
+@media(max-width:400px){
+  .stat-row{grid-template-columns:1fr;gap:8px}
+  .logo{font-size:16px}
 }
 </style>
 </head>
@@ -305,6 +349,17 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
       <a href="https://www.framequalitypro.com/login" class="btn btn-ghost">Sign in</a>
       <a href="https://www.framequalitypro.com/sample" class="btn btn-primary">Start Free</a>
     </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#features">Detection</a>
+    <a href="#functions">Functions</a>
+    <a href="#workflow">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="https://www.framequalitypro.com/login">Sign in</a>
+    <a href="https://www.framequalitypro.com/sample" class="btn btn-primary">Start Free</a>
   </div>
 </header>
 
@@ -577,6 +632,18 @@ footer{border-top:1px solid var(--border);padding:44px 0;color:var(--muted-2);fo
 // nav shadow
 const hdr=document.getElementById('hdr');
 addEventListener('scroll',()=>hdr.classList.toggle('scrolled',scrollY>20));
+
+// mobile menu toggle
+const navToggle=document.getElementById('navToggle');
+const mobileMenu=document.getElementById('mobileMenu');
+function closeMenu(){navToggle.classList.remove('open');mobileMenu.classList.remove('open');navToggle.setAttribute('aria-expanded','false');}
+navToggle.addEventListener('click',()=>{
+  const open=navToggle.classList.toggle('open');
+  mobileMenu.classList.toggle('open',open);
+  navToggle.setAttribute('aria-expanded',open);
+});
+mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+addEventListener('resize',()=>{if(innerWidth>960)closeMenu();});
 
 // reveal on scroll
 const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.14});
