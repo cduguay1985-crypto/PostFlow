@@ -292,6 +292,17 @@ footer{border-top:1px solid var(--border);padding:64px 0 40px;color:var(--muted-
   .shot-media{order:2}
 }
 
+/* ===== VIDEO DEMO ===== */
+.video-wrap{max-width:940px;margin:0 auto;position:relative;background:#05070d;
+  border:1px solid var(--border-2);border-radius:18px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.6),var(--glow-blue)}
+.video-wrap::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;z-index:2;
+  background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:.6}
+.video-wrap video{width:100%;height:auto;display:block;border-radius:18px}
+.video-tag{position:absolute;top:16px;left:16px;z-index:2;font-size:10.5px;font-weight:800;
+  letter-spacing:.05em;text-transform:uppercase;padding:5px 12px;border-radius:100px;color:#05070d;
+  background:linear-gradient(135deg,var(--teal),var(--blue-bright));box-shadow:var(--glow-teal)}
+
 /* ===== REVEAL ANIM ===== */
 .reveal{opacity:0;transform:translateY(28px);transition:.7s cubic-bezier(.2,.7,.2,1)}
 .reveal.in{opacity:1;transform:none}
@@ -388,6 +399,24 @@ footer{border-top:1px solid var(--border);padding:64px 0 40px;color:var(--muted-
         <div class="fb-t">Scan speed</div>
         <div class="fb-v mono">18× realtime</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO DEMO -->
+<section class="section" id="demo" style="background:linear-gradient(180deg,transparent,rgba(10,14,24,.5),transparent)">
+  <div class="container">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Watch the walkthrough</span>
+      <h2>Run a scan &amp; read your reports</h2>
+      <p>A quick walkthrough of running a QC scan on your export — and where to find and read the results once it's done.</p>
+    </div>
+    <div class="video-wrap reveal">
+      <span class="video-tag">Demo</span>
+      <video controls preload="metadata" playsinline>
+        <source src="videos/scan-tool.mp4" type="video/mp4">
+        Your browser doesn't support embedded video. <a href="videos/scan-tool.mp4">Download the demo</a> instead.
+      </video>
     </div>
   </div>
 </section>
